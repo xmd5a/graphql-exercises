@@ -1,3 +1,9 @@
 type Query {
-    greeting: String
+    jobs: [Job] # this syntax means - array of jobs
+}
+
+type Job {
+    id: ID! # built-in type ID - unique identifier, not intended to be human readable, should never be null = !
+    title: String,
+    description: String
 }
