@@ -1,49 +1,52 @@
 const endpointUrl = 'http://localhost:9000/graphql';
 
-export async function loadJobs() {
+async function graphqlRequest(query, variables = {}) {
   const response = await fetch(endpointUrl, {
     method: 'POST',
     headers: {'content-type': 'application/json'},
     body: JSON.stringify({
-      query: `{
-        jobs {
-          id
-          title
-          company {
-            id
-            name
-          }
-        }
-      }`
+      query,
+      variables
     })
   });
-
   const responseBody = await response.json();
-  return responseBody.data.jobs;
+  if (responseBody.errors) {
+    const message = responseBody.errors.map((error) => error.message).join('\n');
+    throw new Error(message);
+  }
+  return responseBody.data;
+}
+
+export async function loadJobs() {
+  const query = `{
+    jobs {
+      id
+      title
+      company {
+        id
+        name
+      }
+    }
+  }`;
+
+  const {jobs} = await graphqlRequest(query);
+  return jobs;
 }
 
 // return single job
 export async function loadJob(id) {
-  const response = await fetch(endpointUrl, {
-    method: 'POST',
-    headers: {'content-type': 'application/json'},
-    body: JSON.stringify({
-      query: `query JobQuery($id: ID!){
-        job(id: $id) {
-          id
-          title
-          company {
-            id
-            name
-            description
-          }
-          description
-        }
-      }`,
-      variables: {id}
-    })
-  });
-
-  const responseBody = await response.json();
-  return responseBody.data.job;
+  const query = `query JobQuery($id: ID!){
+    job(id: $id) {
+      id
+      title
+      company {
+        id
+        name
+        description
+      }
+      description
+    }
+  }`;
+  const {job} = await graphqlRequest(query, {id})
+  return job;
 }
