@@ -1,9 +1,17 @@
 type Query {
+    job(id: ID!): Job
     jobs: [Job] # this syntax means - array of jobs
+}
+
+type Company {
+    id: ID!
+    name: String
+    description: String
 }
 
 type Job {
     id: ID! # built-in type ID - unique identifier, not intended to be human readable, should never be null = !
-    title: String,
+    title: String
+    company: Company
     description: String
 }
